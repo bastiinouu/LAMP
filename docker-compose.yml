@@ -1,0 +1,48 @@
+version: '2'
+
+services:
+    siteweb:
+        image: php:8.2-apache
+        ports:
+            - "80:80"
+        volumes:
+            - ~/.docker/LAMP-BASTIEN/www:/var/www/php
+        links:
+            - db:db
+    db:
+        image: mysql:5.5
+        restart: always
+        volumes:
+            - ~/.Ubuntu/LAMP-BASTIEN/mysql:/var/lib/mysql
+        ports:
+            - "3306:3306"
+        environment:
+            - MYSQL_ROOT_PASSWORD=bastien
+    myadmin:
+        image: phpmyadmin/phpmyadmin
+        ports:
+            - "8080:80"
+        links:
+            - db:db
+    dbnextcloud:
+          image: mariadb:10.6
+          volumes:
+              - ~/.Ubuntu/LAMP-BASTIEN/mariadb:/var/lib.mariadb
+          environment:
+            - MYSQL_ROOT_PASSWORD=nextcloud
+            - MYSQL_PASSWORD=nextcloud
+            - MYSQL_DATABASE=nextcloud
+            - MYSQL_USER=nextcloud
+    nextcloudapp:
+          image: nextcloud
+          ports:
+            - "8585:8585"
+          links:
+            - dbnextcloud
+          volumes:
+            - ~/.Ubuntu/LAMP-BASTIEN/nextcloud:/var/www/html
+          environment:
+            - MYSQL_PASSWORD=nextcloud
+            - MYSQL_DATABASE=nextcloud
+            - MYSQL_USER=nextcloud
+            - MYSQL_HOST=dbnextcloud
